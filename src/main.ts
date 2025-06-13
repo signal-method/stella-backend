@@ -1,23 +1,26 @@
-import express from 'express'
 import dotenv from 'dotenv'
-import { setupLogger } from './logger'
-import { connectDatabase } from './database'
-import authRouter from './routers/auth'
-
-setupLogger()
 dotenv.config()
 
+import express from 'express'
+import { setupLogger } from './logger'
+import { connectDB } from './database'
+import { connectRedis } from './redis'
+import { authRouter } from './routers/auth'
+
+setupLogger()
+
 const app = express()
-const PORT = process.env.PORT || 3000
+const port = process.env.PORT || 8000
 
 app.use(express.json())
 
-app.use(authRouter)
+app.use("/auth", authRouter)
 
 ;(async () => {
-    await connectDatabase()
+    await connectDB()
+    await connectRedis()
 
-    app.listen(PORT, () => {
-        console.info(`Server running on port ${PORT} (Press CTRL+C to quit)`)
+    app.listen(port, () => {
+        console.info(`Listening on http://127.0.0.1:${port} (Press CTRL+C to quit)`)
     })
 })()
